@@ -7,9 +7,9 @@ from typing import Annotated
 from app import utils
 from app.oauth2 import get_current_user
 
-app=APIRouter(prefix="/vote",tags=["Vote"])
+router=APIRouter(prefix="/vote",tags=["Vote"])
 
-@app.post("/")
+@router.post("/")
 def add_remove_vote(body:Annotated[schemas.Vote,Body()],session:Session=Depends(get_db),current_user =Depends(get_current_user)):
     if body.direction==1:
         post = session.query(models.Post).filter(models.Post.id==body.post_id).first()

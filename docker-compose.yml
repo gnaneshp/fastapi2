@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    depends_on: 
+      - postgres
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_HOSTNAME: postgres
+      DATABASE_PORT: 5432
+      DATABASE_PASSWORD: gnanesh
+      DATABASE_NAME: fastapi
+      DATABASE_USERNAME: postgres
+      SECRET_KEY: 58e824f60888109048b653a52f6243e57bda5cd086bb9710517d6e40ab7c4fec
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+    volumes:
+      - ./:/usr/src/app:ro
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gnanesh
+      POSTGRES_DB: fastapi
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  db-data:

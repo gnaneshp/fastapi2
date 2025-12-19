@@ -9,10 +9,10 @@ from app import utils
 from app import oauth2
 
 
-app=APIRouter(tags=["Authentication"])
+router=APIRouter( tags=["Authentication"])
 
-@app.post("/login",response_model=schemas.Token)
-def login(body:Annotated[OAuth2PasswordRequestForm,Depends()],session:Session=Depends(get_db)):
+@router.post("/login",response_model=schemas.Token)
+def login(body:OAuth2PasswordRequestForm = Depends(),session:Session=Depends(get_db)):
     user = session.query(models.User).filter(models.User.email==body.username).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Invalid Credentials")

@@ -8,16 +8,16 @@ from typing import Annotated
 from app.oauth2 import get_current_user
 
 
-app=APIRouter(prefix="/posts",tags=["Posts"])
+router=APIRouter(prefix="/posts",tags=["Posts"])
 
-@app.get("/",response_model=list[schemas.PostOut])
+@router.get("/",response_model=list[schemas.PostOut])
 def get_posts(search:Annotated[str,Query()]="",session:Session = Depends(get_db),current_user =Depends(get_current_user),limit:Annotated[int,Query()]=10,skip:Annotated[int,Query()]=0):
     results2 = session.query(models.Post,func.count(models.Vote.post_id).label("Votes")).join(models.Vote,models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit=limit).offset(offset=skip).all()
     # print(results2)
     # cursor.execute("""select * from posts""")
     # posts = cursor.fetchall()
     return results2
-@app.post("/",status_code=201,response_model=schemas.PostResponse)
+@router.post("/",status_code=201,response_model=schemas.PostResponse)
 def create_post(body:Annotated[schemas.Post,Body()],session:Session = Depends(get_db),current_user =Depends(get_current_user)):
     print('current_user',current_user)
     new_post = models.Post(owner_id=current_user.id,**body.model_dump())
@@ -30,7 +30,7 @@ def create_post(body:Annotated[schemas.Post,Body()],session:Session = Depends(ge
     # conn.commit()
     return new_post
 
-@app.get("/{post_id}",response_model=schemas.PostResponse)
+@router.get("/{post_id}",response_model=schemas.PostResponse)
 def get_post(post_id:int,session:Session=Depends(get_db),current_user =Depends(get_current_user)):
     result = session.query(models.Post).filter(models.Post.id==post_id).first()
 
@@ -40,7 +40,7 @@ def get_post(post_id:int,session:Session=Depends(get_db),current_user =Depends(g
         raise HTTPException(status_code=404,detail=f"post with {post_id} does not exist")
     return result
 
-@app.delete("/{post_id}",status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(post_id:int,session:Session=Depends(get_db),current_user =Depends(get_current_user)):
     result_query = session.query(models.Post).filter(models.Post.id==post_id)
     # cursor.execute("""delete from posts where posts."Id" = %s returning *""",(post_id,))
@@ -54,7 +54,7 @@ def delete_post(post_id:int,session:Session=Depends(get_db),current_user =Depend
     # conn.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@app.put("/{post_id}",response_model=schemas.PostResponse)
+@router.put("/{post_id}",response_model=schemas.PostResponse)
 def update_post(post_id:int,body:Annotated[schemas.Post,Body()],session:Session=Depends(get_db),current_user =Depends(get_current_user)):
     result_query = session.query(models.Post).filter(models.Post.id==post_id)
 

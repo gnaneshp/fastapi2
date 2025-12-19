@@ -17,13 +17,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(post.app)
-app.include_router(user.app)
-app.include_router(auth.app)
-app.include_router(vote.app)
+app.include_router(auth.router)
+app.include_router(post.router)
+app.include_router(user.router)
+app.include_router(vote.router)
 # models.Base.metadata.create_all(bind=engine)
 
+print(app.routes)
+print(">>> RUNNING MAIN FROM:", __file__)
 @app.get("/")
 async def root():
-    return {"message": "Welcolme to my API "}
+    return {"message": "Welcolme to my API"}
 
